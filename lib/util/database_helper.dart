@@ -16,6 +16,7 @@ class DatabaseHelper {
   String colPrice = 'price';
 	String colStore = 'store';
 	String colNote = 'note';
+  String colStatus = 'status';
 
 	DatabaseHelper._createInstance(); // Named constructor to create instance of DatabaseHelper
 
@@ -47,7 +48,7 @@ class DatabaseHelper {
 
 	void _createDb(Database db, int newVersion) async {
 
-		await db.execute('CREATE TABLE $goodsTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colName TEXT, $colBrand TEXT, $colPrice TEXT, $colStore TEXT, $colNote TEXT)');
+		await db.execute('CREATE TABLE $goodsTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colName TEXT, $colBrand TEXT, $colPrice TEXT, $colStore TEXT, $colNote TEXT, $colStatus INTEGER)');
 	}
 
 	// Fetch Operation: Get all todo objects from database
@@ -55,7 +56,7 @@ class DatabaseHelper {
 		Database db = await this.database;
 
 //		var result = await db.rawQuery('SELECT * FROM $todoTable order by $colTitle ASC');
-		var result = await db.query(goodsTable, orderBy: '$colName ASC');
+		var result = await db.query(goodsTable, where: '$colStatus = 0', orderBy: '$colName ASC');
 		return result;
 	}
 
@@ -82,7 +83,8 @@ class DatabaseHelper {
 	// Delete Operation: Delete a todo object from database
 	Future<int> deleteGoods(int id) async {
 		var db = await this.database;
-		int result = await db.rawDelete('DELETE FROM $goodsTable WHERE $colId = $id');
+		List<Map<String, dynamic>> query = await db.rawQuery('UPDATE $goodsTable SET $colStatus = 1 WHERE $colId = $id');
+		int result = Sqflite.firstIntValue(query);
 		return result;
 	}
 
@@ -104,6 +106,24 @@ class DatabaseHelper {
 		// For loop to create a 'todo List' from a 'Map List'
 		for (int i = 0; i < count; i++) {
 			goodsList.add(Goods.fromMapObject(goodsMapList[i]));
+		}
+
+		return goodsList;
+	}
+
+  Future<List<Goods>> getGoodsListWithDeleted() async {
+    Database db = await this.database;
+
+		var result = await db.query(
+      goodsTable, 
+      where: '$colStatus = ?',
+      whereArgs: ['1'],
+      orderBy: '$colName ASC');
+    
+		int count = result.length;
+		List<Goods> goodsList = List<Goods>();
+		for (int i = 0; i < count; i++) {
+			goodsList.add(Goods.fromMapObject(result[i]));
 		}
 
 		return goodsList;

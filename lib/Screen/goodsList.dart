@@ -21,6 +21,8 @@ class GoodsListState extends State<GoodsList> {
   Widget customTitle = Text("Barang");
   FocusNode focusSearchbar = FocusNode();
 
+  bool isShowDeleted = false;
+
   @override
   Widget build(BuildContext context) {
     if (goodsList == null) {
@@ -56,14 +58,21 @@ class GoodsListState extends State<GoodsList> {
                 }
               });
             }
-          )
+          ),
+          IconButton(
+            icon: Icon(Icons.delete), 
+            onPressed: (){
+              isShowDeleted = !isShowDeleted;
+              isShowDeleted? updateListViewWithDeleted() : updateListView();
+            }
+          ),
         ],
       ),
       body: getGoodsListView(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           debugPrint('FAB clicked');
-          navigateToDetail(Goods('', '', '', '' ,'-'), 'Add Barang');
+          navigateToDetail(Goods('', '', '', '' ,'-', 0), 'Add Barang');
         },
         tooltip: 'Add Barang',
         backgroundColor: Colors.blue.shade800,
@@ -95,7 +104,7 @@ class GoodsListState extends State<GoodsList> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 GestureDetector(
-                  child: Icon(Icons.delete,color: Colors.red,),
+                  child: isShowDeleted ? Icon(Icons.delete_forever,color: Colors.black,) : Icon(Icons.delete,color: Colors.red,),
                   onTap: () {
                     confirmAlertDialog(position);
                   },
@@ -159,10 +168,23 @@ class GoodsListState extends State<GoodsList> {
     dbFuture.then((database) {
       Future<List<Goods>> goodsListFuture = databaseHelper.getGoodsListWithQuery(query);
       goodsListFuture.then((goodsList) {
-        debugPrint(goodsList.length.toString());
         setState(() {
           this.goodsList = goodsList;
           this.count = goodsList.length;
+        });
+      });
+    });
+  }
+
+  void updateListViewWithDeleted() {
+    final Future<Database> dbFuture = databaseHelper.initializeDatabase();
+    dbFuture.then((database) {
+      Future<List<Goods>> goodsListFuture = databaseHelper.getGoodsListWithDeleted();
+      goodsListFuture.then((goodsList) {
+        setState(() {
+          this.goodsList = goodsList;
+          this.count = goodsList.length;
+          debugPrint(goodsList.length.toString());
         });
       });
     });

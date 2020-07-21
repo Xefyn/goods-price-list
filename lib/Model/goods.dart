@@ -6,10 +6,11 @@ class Goods {
 	String _price;
 	String _store;
 	String _note;
+  int _status;
 
-	Goods(this._name, this._brand, this._price, this._store, this._note);
+	Goods(this._name, this._brand, this._price, this._store, this._note, this._status);
 
-	Goods.withId(this._id, this._name, this._brand, this._price, this._store, this._note);
+	Goods.withId(this._id, this._name, this._brand, this._price, this._store, this._note, this._status);
 
 	int get id => _id;
 
@@ -22,6 +23,8 @@ class Goods {
 	String get store => _store;
 
 	String get note => _note;
+
+  int get status => _status;
 
 	set name(String newName) {
 		if (newName.length <= 255) {
@@ -46,6 +49,10 @@ class Goods {
   set note(String newNote) {
 		this._note = newNote;
 	}
+
+  set status(int newStatus) {
+		this._status = newStatus;
+	}
 	
 
 	// Convert a Note object into a Map object
@@ -60,6 +67,7 @@ class Goods {
 		map['price'] = _price;
 		map['store'] = _store;
 		map['note'] = _note;
+		map['status'] = _status;
 
 		return map;
 	}
@@ -72,5 +80,6 @@ class Goods {
 		this._price = map['price'];
 		this._store = map['store'];
 		this._note = map['note'];
+		this._status = map['status'];
 	}
 }
