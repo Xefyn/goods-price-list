@@ -17,6 +17,10 @@ class GoodsListState extends State<GoodsList> {
   List<Goods> goodsList;
   int count = 0;
 
+  Icon customIcon = Icon(Icons.search);
+  Widget customTitle = Text("Barang");
+  FocusNode focusSearchbar = FocusNode();
+
   @override
   Widget build(BuildContext context) {
     if (goodsList == null) {
@@ -25,8 +29,35 @@ class GoodsListState extends State<GoodsList> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text('Barang'),
+        title: customTitle,
         backgroundColor: Colors.blue.shade800,
+        actions: <Widget>[
+          IconButton(
+            icon: customIcon, 
+            onPressed: (){
+              setState((){
+                if(this.customIcon.icon == Icons.search){
+                  this.customIcon = Icon(Icons.cancel);
+                  this.customTitle = TextField(
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20.0
+                    ),
+                    focusNode: focusSearchbar,
+                    onSubmitted: (query){
+                      updateListViewWithQuery(query);
+                    },
+                  );
+                  focusSearchbar.requestFocus();
+                }else{
+                  this.customIcon = Icon(Icons.search);
+                  this.customTitle = Text("Barang");
+                  updateListView();
+                }
+              });
+            }
+          )
+        ],
       ),
       body: getGoodsListView(),
       floatingActionButton: FloatingActionButton(
@@ -115,6 +146,20 @@ class GoodsListState extends State<GoodsList> {
     dbFuture.then((database) {
       Future<List<Goods>> goodsListFuture = databaseHelper.getGoodsList();
       goodsListFuture.then((goodsList) {
+        setState(() {
+          this.goodsList = goodsList;
+          this.count = goodsList.length;
+        });
+      });
+    });
+  }
+
+  void updateListViewWithQuery(String query) {
+    final Future<Database> dbFuture = databaseHelper.initializeDatabase();
+    dbFuture.then((database) {
+      Future<List<Goods>> goodsListFuture = databaseHelper.getGoodsListWithQuery(query);
+      goodsListFuture.then((goodsList) {
+        debugPrint(goodsList.length.toString());
         setState(() {
           this.goodsList = goodsList;
           this.count = goodsList.length;

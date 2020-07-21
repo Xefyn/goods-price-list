@@ -109,4 +109,24 @@ class DatabaseHelper {
 		return goodsList;
 	}
 
+  Future<List<Goods>> getGoodsListWithQuery(String query) async {
+    Database db = await this.database;
+
+		var result = await db.query(
+      goodsTable, 
+      where: 'lower($colName) like ? or lower($colBrand) like ? or lower($colPrice) like ? or lower($colStore) like ? or lower($colNote) like ?',
+      whereArgs: ['%$query%','%$query%','%$query%','%$query%','%$query%'],
+      orderBy: '$colName ASC');
+    
+		int count = result.length;         // Count the number of map entries in db table
+
+		List<Goods> goodsList = List<Goods>();
+		// For loop to create a 'todo List' from a 'Map List'
+		for (int i = 0; i < count; i++) {
+			goodsList.add(Goods.fromMapObject(result[i]));
+		}
+
+		return goodsList;
+	}
+
 }
