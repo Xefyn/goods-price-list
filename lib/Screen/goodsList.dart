@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:goods_list_item/Model/goods.dart';
+import 'package:goods_list_item/Screen/goodsDetail.dart';
 import 'package:goods_list_item/Util/database_helper.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -22,7 +23,6 @@ class GoodsListState extends State<GoodsList> {
       goodsList = List<Goods>();
       updateListView();
     }
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Barang'),
@@ -32,7 +32,7 @@ class GoodsListState extends State<GoodsList> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           debugPrint('FAB clicked');
-          //navigateToDetail(Goods('', '', 0, '' ,''), 'Add Barang');
+          navigateToDetail(Goods('', '', '', '' ,'-'), 'Add Barang');
         },
         tooltip: 'Add Barang',
         backgroundColor: Colors.blue.shade800,
@@ -52,25 +52,28 @@ class GoodsListState extends State<GoodsList> {
             leading: CircleAvatar(
               backgroundColor: Colors.amber,
               child: Text(getFirstLetter(this.goodsList[position].name),
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              style: TextStyle(fontWeight: FontWeight.bold)),
             ),
             title: Text(this.goodsList[position].name,
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text(this.goodsList[position].price.toString()),
+            style: TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text('Merk: '+this.goodsList[position].brand
+            +'\nHarga: '+this.goodsList[position].price.toString()
+            +'\nStore: '+this.goodsList[position].store
+            +'\nNote: '+this.goodsList[position].note),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 GestureDetector(
                   child: Icon(Icons.delete,color: Colors.red,),
                   onTap: () {
-                    _delete(context, goodsList[position]);
+                    confirmAlertDialog(position);
                   },
                 ),
               ],
             ),
             onTap: () {
               debugPrint("ListTile Tapped");
-              //navigateToDetail(this.goodsList[position], 'Edit Barang');
+              navigateToDetail(this.goodsList[position], 'Edit Barang');
             },
           ),
         );
@@ -96,16 +99,16 @@ class GoodsListState extends State<GoodsList> {
     Scaffold.of(context).showSnackBar(snackBar);
   }
 
-  // void navigateToDetail(Goods goods, String title) async {
-  //   bool result =
-  //       await Navigator.push(context, MaterialPageRoute(builder: (context) {
-  //     return GoodsDetail(goods, title);
-  //   }));
+  void navigateToDetail(Goods goods, String title) async {
+    bool result =
+        await Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return GoodsDetail(goods, title);
+    }));
 
-  //   if (result == true) {
-  //     updateListView();
-  //   }
-  // }
+    if (result == true) {
+      updateListView();
+    }
+  }
 
   void updateListView() {
     final Future<Database> dbFuture = databaseHelper.initializeDatabase();
@@ -120,5 +123,29 @@ class GoodsListState extends State<GoodsList> {
     });
   }
 
-  
+  void confirmAlertDialog(int position){
+    AlertDialog dialog =  AlertDialog(
+      content: Text('Are you sure you want to delete this?'),
+      actions: <Widget>[
+        FlatButton(
+          child: Text('Yes'),
+          onPressed: () {
+            _delete(context, goodsList[position]);
+            updateListView();
+            Navigator.of(context).pop(false);
+          },
+        ),
+        FlatButton(
+          child: Text('No'),
+          onPressed: () {
+            Navigator.of(context).pop(false);
+          },
+        ),
+      ],
+    );
+    showDialog(
+				context: context,
+				builder: (_) => dialog
+		);
+  }
 }

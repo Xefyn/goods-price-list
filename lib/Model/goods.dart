@@ -3,7 +3,7 @@ class Goods {
 	int _id;
 	String _name;
 	String _brand;
-	int _price;
+	String _price;
 	String _store;
 	String _note;
 
@@ -17,7 +17,7 @@ class Goods {
 
 	String get brand => _brand;
 
-	int get price => _price;
+	String get price => _price;
 
 	String get store => _store;
 
@@ -29,7 +29,7 @@ class Goods {
 		}
 	}
 
-  set price(int newPrice) {
+  set price(String newPrice) {
 		this._price = newPrice;
 	}
   

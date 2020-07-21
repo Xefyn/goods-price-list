@@ -47,7 +47,7 @@ class DatabaseHelper {
 
 	void _createDb(Database db, int newVersion) async {
 
-		await db.execute('CREATE TABLE $goodsTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colName TEXT, $colBrand TEXT, $colPrice INTEGER, $colStore TEXT, $colNote TEXT)');
+		await db.execute('CREATE TABLE $goodsTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colName TEXT, $colBrand TEXT, $colPrice TEXT, $colStore TEXT, $colNote TEXT)');
 	}
 
 	// Fetch Operation: Get all todo objects from database
